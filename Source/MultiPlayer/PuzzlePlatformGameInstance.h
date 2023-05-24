@@ -23,4 +23,10 @@ public:
 
 	UFUNCTION(Exec)
 		void Join(const FString& Address);
+
+	UFUNCTION(Exec)
+		void LoadMenu();
+
+private:
+	TSubclassOf<class UUserWidget> MenuClass;
 };
