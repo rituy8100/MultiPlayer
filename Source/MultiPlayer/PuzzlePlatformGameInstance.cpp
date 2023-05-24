@@ -9,7 +9,7 @@
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer& ObjectInitializer)
 {
 	UE_LOG(LogTemp, Warning, TEXT("GameInstance Constructor"));
-	ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/ThirdPerson/Blueprints/UI/NewWidgetBlueprint"));
+	ConstructorHelpers::FClassFinder<UUserWidget> MenuBPClass(TEXT("/Game/ThirdPerson/Blueprints/UI/WBP_MainMenu"));
 	if (!ensure(MenuBPClass.Class != nullptr)) return;
 
 	MenuClass = MenuBPClass.Class;
@@ -17,6 +17,7 @@ UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitialize
 
 void UPuzzlePlatformGameInstance::Init()
 {
+	Super::Init();
 	UE_LOG(LogTemp, Warning, TEXT("GameInstance Init"));
 	UE_LOG(LogTemp, Warning, TEXT("Found class %s"), *MenuClass->GetName());
 }

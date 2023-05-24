@@ -16,7 +16,7 @@ class MULTIPLAYER_API UPuzzlePlatformGameInstance : public UGameInstance
 public:
 	UPuzzlePlatformGameInstance(const FObjectInitializer& ObjectInitializer);
 
-	virtual void Init();
+	virtual void Init() override;
 
 	UFUNCTION(Exec)
 		void Host();
@@ -24,7 +24,7 @@ public:
 	UFUNCTION(Exec)
 		void Join(const FString& Address);
 
-	UFUNCTION(Exec)
+	UFUNCTION(BlueprintCallable)
 		void LoadMenu();
 
 private:
