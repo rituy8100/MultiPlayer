@@ -6,6 +6,8 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "MainMenu.h"
+#include "InGameMenu.h"
+#include "MenuWidget.h"
 #include "GameFramework/PlayerController.h"
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer& ObjectInitializer)
@@ -15,6 +17,11 @@ UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitialize
 	if (!ensure(MenuBPClass.Class != nullptr)) return;
 
 	MenuClass = MenuBPClass.Class;
+
+	ConstructorHelpers::FClassFinder<UUserWidget> InGameMenuBPClass(TEXT("/Game/ThirdPerson/Blueprints/UI/WBP_InGameMenu1"));
+	if (!ensure(InGameMenuBPClass.Class != nullptr)) return;
+
+	InGameMenuClass = InGameMenuBPClass.Class;
 }
 
 void UPuzzlePlatformGameInstance::Init()
@@ -26,6 +33,10 @@ void UPuzzlePlatformGameInstance::Init()
 
 void UPuzzlePlatformGameInstance::Host()
 {
+	if (Menu != nullptr)
+	{
+		Menu->Teardown();
+	}
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine != nullptr)) return;
 
@@ -38,6 +49,11 @@ void UPuzzlePlatformGameInstance::Host()
 
 void UPuzzlePlatformGameInstance::Join(const FString& Address)
 {
+	if (Menu != nullptr)
+	{
+		Menu->Teardown();
+	}
+
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine != nullptr)) return;
 
@@ -53,22 +69,30 @@ void UPuzzlePlatformGameInstance::LoadMenu()
 	if (!ensure(MenuClass != nullptr)) return;
 
 	//UUserWidget* Menu = CreateWidget(GetWorld(), MenuClass);
-	UMainMenu* Menu = CreateWidget<UMainMenu>(this, MenuClass);
+	Menu = CreateWidget<UMainMenu>(this, MenuClass);
 	if (!ensure(Menu != nullptr)) return;
 	UE_LOG(LogTemp, Warning, TEXT("Widget Init"));
-	Menu->AddToViewport();
+	Menu->Setup();
 
+	Menu->SetMenuInterface(this);
+}
+
+void UPuzzlePlatformGameInstance::InGameLoadMenu()
+{
+	if (!ensure(InGameMenuClass != nullptr)) return;
+
+	UInGameMenu* InMenu = CreateWidget<UInGameMenu>(this, InGameMenuClass);
+	if (!ensure(InMenu != nullptr)) return;
+
+	InMenu->Setup();
+
+	InMenu->SetMenuInterface(this);
+}
+
+void UPuzzlePlatformGameInstance::LoadMainMenu()
+{
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!ensure(PlayerController != nullptr)) return;
 
-	//input mode struct
-	FInputModeUIOnly InputModeData;
-	InputModeData.SetWidgetToFocus(Menu->TakeWidget());
-	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-
-	PlayerController->SetInputMode(InputModeData);
-
-	PlayerController->bShowMouseCursor = true;
-
-	Menu->SetMenuInterface(this);
+	PlayerController->ClientTravel("/Game/ThirdPerson/Blueprints/UI/MainMenuLevel", ETravelType::TRAVEL_Absolute);
 }
