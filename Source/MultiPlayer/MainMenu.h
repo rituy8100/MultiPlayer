@@ -9,6 +9,18 @@
 /**
  * 
  */
+
+USTRUCT()
+struct FServerData
+{
+	GENERATED_BODY()
+
+		FString Name;
+	uint16 CurrentPlayers;
+	uint16 MaxPlayers;
+	FString HostUsername;
+};
+
 UCLASS()
 class MULTIPLAYER_API UMainMenu : public UMenuWidget
 {
@@ -17,6 +29,11 @@ protected:
 	virtual bool Initialize() override;
 
 public:
+	UMainMenu(const FObjectInitializer& ObjectInitializer);
+
+	void SetServerList(TArray<FServerData> ServerNames);
+
+	void SelectIndex(uint32 Index);
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -38,10 +55,22 @@ private:
 		class UWidget* JoinMenu;
 
 	UPROPERTY(meta = (BindWidget))
+		class UWidget* HostMenu;
+
+	UPROPERTY(meta = (BindWidget))
+		class UEditableTextBox* ServerHostName;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* CancelHostMenuButton;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* ConfirmHostMenuButton;
+
+	UPROPERTY(meta = (BindWidget))
 		class UButton* ConfirmJoinMenuButton;
 
 	UPROPERTY(meta = (BindWidget))
-		class UEditableTextBox* IPAddressField;
+		class UPanelWidget* ServerList;
 
 	UPROPERTY(meta = (BindWidget))
 		class UButton* QuitButton;
@@ -60,5 +89,15 @@ private:
 		void JoinServer();
 
 	UFUNCTION()
+		void OpenHostMenu();
+
+	UFUNCTION()
 		void QuitPressed();
+
+	TSubclassOf<class UUserWidget> ServerRowClass;
+
+	//value can be nullable but not pointer
+	TOptional<uint32> SelectedIndex;
+
+	void UpdateChildren();
 };
